@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  service1:
+    build: ./service1
+    ports: 
+      - 5002:5002
+    labels:
+      co.elastic.logs/json.overwrite_keys: true 
+      co.elastic.logs/json.add_error_key: true 
+      co.elastic.logs/json.expand_keys: true
+      co.elastic.logs/json.keys_under_root: true 
+  service2:
+    build: ./service2
+    depends_on:
+      - service1
+    ports: 
+      - 5001:5001
+    labels:
+      co.elastic.logs/json.overwrite_keys: true
+      co.elastic.logs/json.add_error_key: true
+      co.elastic.logs/json.expand_keys: true
+      co.elastic.logs/json.keys_under_root: true
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.1
+    user: root
+    volumes:
+      - ./filebeat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      co.elastic.logs/enabled: false
