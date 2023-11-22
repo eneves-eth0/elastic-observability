@@ -94,3 +94,10 @@ Coloque os seguintes valores nos campos:
 - **hosts:** Copieo endereço do seu elasticsearch para essa diretiva, se estiver usando elastic cloud a porta padrão é a 443
 
 ![Screenshot da tela do deployment da elastic cloud](https://www.elastic.co/guide/en/observability/current/images/es-endpoint-cluster-id.png)
+
+- **api-key:** Use uma chave API para conceder ao agente acesso ao Elasticsearch. Para criar uma chave API para o seu agente, consulte a documentação 'Criar chaves API para agentes independentes'.
+- **inputs.id:** Um identificador único para a sua entrada.
+- **type:** O tipo de entrada. Para coletar logs, defina isso como filestream.
+- **streams.id:** Um identificador único para o seu fluxo de dados de log.
+- **data_stream.dataset:**  O nome para o seu fluxo de dados do conjunto de dados. Nomeie este fluxo de dados com algo que signifique a fonte dos dados. O valor padrão é genérico.
+- **paths:** O caminho para os seus arquivos de log. Você também pode usar um padrão como /var/log/your-logs.log*.
