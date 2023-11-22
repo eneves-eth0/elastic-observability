@@ -101,3 +101,37 @@ Coloque os seguintes valores nos campos:
 - **streams.id:** Um identificador único para o seu fluxo de dados de log.
 - **data_stream.dataset:**  O nome para o seu fluxo de dados do conjunto de dados. Nomeie este fluxo de dados com algo que signifique a fonte dos dados. O valor padrão é genérico.
 - **paths:** O caminho para os seus arquivos de log. Você também pode usar um padrão como /var/log/your-logs.log*.
+
+#### Reinicie o Elastic Agent
+Após atualizar o seu arquivo de configuração, você precisa reiniciar o Elastic Agent:
+
+Primeiro, pare o Elastic Agent e seus executáveis relacionados usando o comando que funciona com o seu sistema:
+
+**macOS**
+```
+sudo launchctl unload /Library/LaunchDaemons/co.elastic.elastic-agent.plist
+```
+**Linux**
+```
+sudo service elastic-agent stop
+```
+**Windows**
+```
+Stop-Service Elastic Agent
+```
+
+Depois reinicie o Elastic Agent:
+**macOS**
+```
+sudo launchctl load /Library/LaunchDaemons/co.elastic.elastic-agent.plist
+```
+**Linux**
+```
+sudo service elastic-agent start
+```
+**Windows**
+```
+Start-Service Elastic Agent
+```
+
+Agora acesse o kibana e veja seus logs na aba de streams.
