@@ -246,5 +246,42 @@ Você deve ter uma resposta parecida com essa
   }
 }
 ```
+#### Desafio
+Faça agora a extração do campo log.level use todos os conceitos já aprendidos acima.
 
-> Desafio, extraia agora o log.level da sua mensagem de logs
+#### Queries baseadas no log.level
+Depois de extrair o campo log.level, você pode consultar logs de alta severidade, como WARN e ERROR, que podem precisar de atenção imediata, e filtrar logs menos críticos, como INFO e DEBUG.
+
+Exemplos de algumas severidades de logs
+
+```
+2023-08-08T13:45:12.123Z WARN 192.168.1.101 Disk usage exceeds 90%.
+2023-08-08T13:45:14.003Z ERROR 192.168.1.103 Database connection failed.
+2023-08-08T13:45:15.004Z DEBUG 192.168.1.104 Debugging connection issue.
+2023-08-08T13:45:16.005Z INFO 192.168.1.102 User changed profile picture.
+```
+Vamos adicionar elas no nosso datastream para começar a trabalhar as queries
+
+```
+POST logs-example-default/_bulk
+{ "create": {} }
+{ "message": "2023-08-08T13:45:12.123Z WARN 192.168.1.101 Disk usage exceeds 90%." }
+{ "create": {} }
+{ "message": "2023-08-08T13:45:14.003Z ERROR 192.168.1.103 Database connection failed." }
+{ "create": {} }
+{ "message": "2023-08-08T13:45:15.004Z DEBUG 192.168.1.104 Debugging connection issue." }
+{ "create": {} }
+{ "message": "2023-08-08T13:45:16.005Z INFO 192.168.1.102 User changed profile picture." }
+```
+Agora vamos fazer uma query que busque tudo que for WARN e ERROR
+
+```
+GET logs-example-default/_search
+{
+  "query": {
+    "terms": {
+      "log.level": ["WARN", "ERROR"]
+    }
+  }
+}
+```
