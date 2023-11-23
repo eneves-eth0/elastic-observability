@@ -80,3 +80,92 @@ No entanto, sua mensagem contém todos os seguintes campos potenciais que você 
 - **log.level** – `WARN` – Extrair este campo permite que você filtre logs por severidade. Isso é útil se você quiser focar em logs de alta severidade, como WARN ou ERROR, e reduzir ruídos filtrando logs de baixa severidade, como os de nível INFO.
 - **host.ip** – `192.168.1.101` – Extrair este campo permite que você filtre logs pelos endereços IP do host. Isso é útil se você quiser focar em hosts específicos com os quais está tendo problemas ou se quiser encontrar disparidades entre hosts.
 - **message** – `Disk usage exceeds 90%`. – Você pode procurar por frases ou palavras no campo de mensagem.
+
+### Extraindo o @timestamp
+
+Quando você adicionou o log ao Elasticsearch na seção anterior, o campo @timestamp mostrou quando o log foi adicionado. O carimbo de data/hora que indica quando o log realmente ocorreu estava no campo de mensagem não estruturado:
+
+```
+"_source": {
+    "message": "2023-08-08T13:45:12.123Z WARN 192.168.1.101 Disk usage exceeds 90%.",
+    "@timestamp": "2023-08-09T17:19:27.73312243Z"
+}
+```
+
+Ao investigar problemas, você deseja filtrar os logs pelo momento em que o problema ocorreu, não quando o log foi adicionado ao seu projeto. Para fazer isso, extraia o carimbo de data/hora do campo de mensagem não estruturado para o campo estruturado @timestamp, seguindo os seguintes passos:
+
+- Use um ingest pipeline para extrair o @timestamp
+- Teste o pipeline com o api simulate
+- Configure o datastrem com um index template
+- Crie o datastream
+
+#### Usando o ingest pipeline para extrair o @timestamp
+
+Pipelines de ingestão consistem em uma série de processadores que realizam transformações comuns em documentos recebidos antes de serem indexados.
+
+Para extrair o campo @timestamp do log de exemplo, use um pipeline de ingestão com um processador dissect.
+
+O processador dissect extrai campos estruturados de mensagens de log não estruturadas com base em um padrão que você define.
+
+O Elasticsearch pode analisar carimbos de data/hora em string que estão nos formatos yyyy-MM-dd'T'HH:mm:ss.SSSZ e yyyy-MM-dd para campos de data.
+
+Como o carimbo de data/hora do exemplo de log está em um desses formatos, você não precisa de processadores adicionais.
+
+Carimbos de data/hora mais complexos ou não padronizados requerem um processador de data para analisar o carimbo de data/hora em um campo de data.
+
+Use o seguinte comando para extrair o carimbo de data/hora do campo de mensagem para o campo @timestamp:
+
+```
+PUT _ingest/pipeline/logs-example-default
+{
+  "description": "Extracts the timestamp",
+  "processors": [
+    {
+      "dissect": {
+        "field": "message",
+        "pattern": "%{@timestamp} %{message}"
+      }
+    }
+  ]
+}
+```
+
+#### Faça o teste do seu pipeline
+
+A API de simulação de pipeline executa o pipeline de ingestão sem armazenar quaisquer documentos.
+
+Isso permite que você verifique se o seu pipeline está funcionando usando múltiplos documentos. Execute o seguinte comando para testar o seu pipeline de ingestão com a API de simulação de pipeline
+
+```
+POST _ingest/pipeline/logs-example-default/_simulate
+{
+  "docs": [
+    {
+      "_source": {
+        "message": "2023-08-08T13:45:12.123Z WARN 192.168.1.101 Disk usage exceeds 90%."
+      }
+    }
+  ]
+}
+```
+
+Seu resultado deve ser algo parecido com isso
+
+```
+{
+  "docs": [
+    {
+      "doc": {
+        "_index": "_index",
+        "_id": "_id",
+        "_version": "-3",
+        "_source": {
+          "message": "WARN 192.168.1.101 Disk usage exceeds 90%.",
+          "@timestamp": "2023-08-08T13:45:12.123Z"
+        },
+        ...
+      }
+    }
+  ]
+}
+```
