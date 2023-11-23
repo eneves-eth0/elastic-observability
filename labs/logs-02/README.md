@@ -169,3 +169,82 @@ Seu resultado deve ser algo parecido com isso
   ]
 }
 ```
+
+#### Configure um datastrem com um index template
+Após criar o seu pipeline de ingestão, execute o seguinte comando para criar um template de dados para o seu datastream
+
+```
+PUT _index_template/logs-example-default-template
+{
+  "index_patterns": [ "logs-example-*" ],
+  "data_stream": { },
+  "priority": 500,
+  "template": {
+    "settings": {
+      "index.default_pipeline":"logs-example-default"
+    }
+  },
+  "composed_of": [
+    "logs-mappings",
+    "logs-settings",
+    "logs@custom",
+    "ecs@dynamic_templates"
+  ],
+  "ignore_missing_component_templates": ["logs@custom"]
+}
+```
+O template de exemplo acima define os seguintes modelos de componentes:
+
+- **logs-mappings** – mapeamentos gerais para fluxos de dados de log que incluem a desativação da detecção automática de datas a partir de campos de string e especificação de mapeamentos para campos ECS de data_stream.
+- **logs-settings** – configurações gerais para fluxos de dados de log, incluindo o seguinte:
+
+  - A política de ciclo de vida padrão que realiza a rolagem quando o shard primário atinge 50 GB ou após 30 dias.
+  - O pipeline padrão usa o carimbo de data/hora de ingestão se não houver um @timestamp especificado e coloca um gancho para o pipeline logs@custom. Se um pipeline logs@custom estiver instalado, ele é aplicado aos logs ingeridos neste fluxo de dados.
+  - Define a flag ignore_malformed como verdadeira. Ao ingerir um grande lote de dados de log, um único campo malformado, como um endereço IP, pode fazer com que todo o lote falhe. Quando definido como verdadeiro, campos malformados com um tipo de mapeamento que suporta esta flag ainda são processados.
+- **logs@custom** – um modelo de componente predefinido que não é instalado por padrão. Use este nome para instalar um modelo de componente personalizado para substituir ou estender qualquer um dos mapeamentos ou configurações padrão.
+- **ecs@dynamic_templates** – modelos dinâmicos que garantem automaticamente que os mapeamentos do seu fluxo de dados estejam em conformidade com o Elastic Common Schema (ECS)."
+
+#### Criando um datastream
+Crie seu datastream usando o data stream naming scheme.
+
+Nomeie seu data stream para corresponder ao nome do seu pipeline de ingestão, que neste caso é logs-example-default.
+
+Publique o log de exemplo no seu data stream com este comando:
+
+```
+POST logs-example-default/_doc
+{
+  "message": "2023-08-08T13:45:12.123Z WARN 192.168.1.101 Disk usage exceeds 90%."
+}
+```
+Veja seus docs usando o seguinte comando
+
+```
+GET /logs-example-default/_search
+```
+
+Você deve ter uma resposta parecida com essa
+
+```
+{
+...
+{
+  ...
+  "hits": {
+    ...
+    "hits": [
+      {
+        "_index": ".ds-logs-example-default-2023.08.09-000001",
+        "_id": "RsWy3IkB8yCtA5VGOKLf",
+        "_score": 1,
+        "_source": {
+          "message": "WARN 192.168.1.101 Disk usage exceeds 90%.",
+          "@timestamp": "2023-08-08T13:45:12.123Z"
+        }
+      }
+    ]
+  }
+}
+```
+
+> Desafio, extraia agora o log.level da sua mensagem de logs
