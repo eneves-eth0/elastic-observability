@@ -285,3 +285,196 @@ GET logs-example-default/_search
   }
 }
 ```
+
+Você deve ter uma resposta parecida com esse
+
+```
+{
+...
+  },
+  "hits": {
+  ...
+    "hits": [
+      {
+        "_index": ".ds-logs-example-default-2023.08.14-000001",
+        "_id": "3TcZ-4kB3FafvEVY4yKx",
+        "_score": 1,
+        "_source": {
+          "message": "192.168.1.101 Disk usage exceeds 90%.",
+          "log": {
+            "level": "WARN"
+          },
+          "@timestamp": "2023-08-08T13:45:12.123Z"
+        }
+      },
+      {
+        "_index": ".ds-logs-example-default-2023.08.14-000001",
+        "_id": "3jcZ-4kB3FafvEVY4yKx",
+        "_score": 1,
+        "_source": {
+          "message": "192.168.1.103 Database connection failed.",
+          "log": {
+            "level": "ERROR"
+          },
+          "@timestamp": "2023-08-08T13:45:14.003Z"
+        }
+      }
+    ]
+  }
+}
+```
+#### Desafio
+Agora faça a extração do campo host.ip
+
+#### Queries baseadas em host.ip
+
+Você pode consultar seus logs com base no campo host.ip de diferentes maneiras, incluindo o uso de notação CIDR e consultas de intervalo.
+
+#### Notação CIDR
+Você pode usar a notação CIDR para consultar seus dados de log usando um bloco de endereços IP que se enquadram em um determinado segmento de rede. A notação CIDR utiliza o formato [Endereço IP]/[Comprimento do prefixo].
+
+O seguinte comando consulta endereços IP na sub-rede 192.168.1.0/24, o que significa endereços IP de 192.168.1.0 a 192.168.1.255.
+
+```
+GET logs-example-default/_search
+{
+  "query": {
+    "term": {
+      "host.ip": "192.168.1.0/24"
+    }
+  }
+}
+```
+Esse é o resultado esperado
+
+```
+{
+  ...
+  },
+  "hits": {
+    ...
+      {
+        "_index": ".ds-logs-example-default-2023.08.16-000001",
+        "_id": "ak4oAIoBl7fe5ItIixuB",
+        "_score": 1,
+        "_source": {
+          "host": {
+            "ip": "192.168.1.101"
+          },
+          "@timestamp": "2023-08-08T13:45:12.123Z",
+          "message": "Disk usage exceeds 90%.",
+          "log": {
+            "level": "WARN"
+          }
+        }
+      },
+      {
+        "_index": ".ds-logs-example-default-2023.08.16-000001",
+        "_id": "a04oAIoBl7fe5ItIixuC",
+        "_score": 1,
+        "_source": {
+          "host": {
+            "ip": "192.168.1.103"
+          },
+          "@timestamp": "2023-08-08T13:45:14.003Z",
+          "message": "Database connection failed.",
+          "log": {
+            "level": "ERROR"
+          }
+        }
+      },
+      {
+        "_index": ".ds-logs-example-default-2023.08.16-000001",
+        "_id": "bE4oAIoBl7fe5ItIixuC",
+        "_score": 1,
+        "_source": {
+          "host": {
+            "ip": "192.168.1.104"
+          },
+          "@timestamp": "2023-08-08T13:45:15.004Z",
+          "message": "Debugging connection issue.",
+          "log": {
+            "level": "DEBUG"
+          }
+        }
+      },
+      {
+        "_index": ".ds-logs-example-default-2023.08.16-000001",
+        "_id": "bU4oAIoBl7fe5ItIixuC",
+        "_score": 1,
+        "_source": {
+          "host": {
+            "ip": "192.168.1.102"
+          },
+          "@timestamp": "2023-08-08T13:45:16.005Z",
+          "message": "User changed profile picture.",
+          "log": {
+            "level": "INFO"
+          }
+        }
+      }
+    ]
+  }
+}
+```
+#### Range Queries
+Use consultas de intervalo para buscar logs em um intervalo específico.
+
+O seguinte comando procura por endereços IP maiores ou iguais a 192.168.1.100 e menores ou iguais a 192.168.1.102
+
+```
+GET logs-example-default/_search
+{
+  "query": {
+    "range": {
+      "host.ip": {
+        "gte": "192.168.1.100",
+        "lte": "192.168.1.102"
+      }
+    }
+  }
+}
+```
+
+Você vai ter um resultado parecido com esse
+
+```
+{
+  ...
+  },
+  "hits": {
+    ...
+      {
+        "_index": ".ds-logs-example-default-2023.08.16-000001",
+        "_id": "ak4oAIoBl7fe5ItIixuB",
+        "_score": 1,
+        "_source": {
+          "host": {
+            "ip": "192.168.1.101"
+          },
+          "@timestamp": "2023-08-08T13:45:12.123Z",
+          "message": "Disk usage exceeds 90%.",
+          "log": {
+            "level": "WARN"
+          }
+        }
+      },
+      {
+        "_index": ".ds-logs-example-default-2023.08.16-000001",
+        "_id": "bU4oAIoBl7fe5ItIixuC",
+        "_score": 1,
+        "_source": {
+          "host": {
+            "ip": "192.168.1.102"
+          },
+          "@timestamp": "2023-08-08T13:45:16.005Z",
+          "message": "User changed profile picture.",
+          "log": {
+            "level": "INFO"
+          }
+        }
+      }
+    ]
+  }
+}
+```
