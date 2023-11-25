@@ -114,7 +114,9 @@ Clique ou passe o mouse sobre o nome de uma partição para mostrar, ocultar ou 
 
 O gráfico mostra o intervalo de tempo onde as anomalias foram detectadas. Os valores típicos de taxa são mostrados em cinza, enquanto as regiões anômalas são codificadas por cores e sobrepostas no topo.
 
-Quando um intervalo de tempo é marcado como anômalo, os algoritmos de machine learning detectaram atividade incomum na taxa de log. Isso pode ser porque:
+Quando um intervalo de tempo é marcado como anômalo, os algoritmos de machine learning detectaram atividade incomum na taxa de log. 
+
+Isso pode ser porque:
 
 - A taxa de log está significativamente mais alta do que o usual.
 - A taxa de log está significativamente mais baixa do que o usual.
