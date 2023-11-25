@@ -53,3 +53,26 @@ O detalhamento de hosts tem as seguintes abas:
 
 ## Osquery
 ![Infra](https://www.elastic.co/guide/en/observability/current/images/osquery-overlay.png)
+
+
+A aba Osquery permite que você construa declarações SQL para consultar os dados do seu host. 
+
+Você pode criar e executar consultas ao vivo ou salvas contra o Elastic Agent. Os resultados do Osquery são armazenados no Elasticsearch, para que você possa usar o Elastic Stack para pesquisar, analisar e visualizar as métricas do seu host.
+
+Para visualizar mais informações sobre a consulta, clique na aba Status. O status de uma consulta pode resultar em sucesso, erro (junto com uma mensagem de erro) ou pendente (se o Elastic Agent estiver offline).
+
+Outras opções incluem:
+
+- Ver em Discover para pesquisar, filtrar e visualizar informações sobre a estrutura dos campos de métricas do host. Para saber mais, consulte Discover.
+- Ver em Lens para criar visualizações com base nos campos de métricas do seu host. Para saber mais, consulte Lens.
+- Visualizar os resultados em modo de tela cheia.
+- Adicionar, remover, reordenar e redimensionar colunas.
+- Ordenar nomes de campos em ordem ascendente ou descendente.
+
+## Ver métricas para outros recursos
+Quando você tiver pesquisado e filtrado por um recurso específico, você pode aprofundar para analisar as métricas relacionadas a ele. 
+
+Por exemplo, ao visualizar Kubernetes Pods na visão de alto nível, clique no Pod que deseja analisar e selecione Kubernetes Pod metrics para ver métricas detalhadas:
+
+![Infra](https://www.elastic.co/guide/en/observability/current/images/pod-metrics.png)
+
