@@ -36,20 +36,20 @@ Sem sair da página Inventory, você pode visualizar métricas aprimoradas relac
 
 O detalhamento de hosts tem as seguintes abas:
 
-**Visão geral**
+## Visão geral
 ![Infra](https://www.elastic.co/guide/en/observability/current/images/metrics-overlay.png)
 
-**Metadata**
+## Metadata
 ![Infra](https://www.elastic.co/guide/en/observability/current/images/metadata-overlay.png)
 
-**Processos**
+## Processos
 ![Infra](https://www.elastic.co/guide/en/observability/current/images/processes-overlay.png)
 
-**Logs**
+## Logs
 ![Infra](https://www.elastic.co/guide/en/observability/current/images/logs-overlay.png)
 
-**Anomalias**
+## Anomalias
 ![Infra](https://www.elastic.co/guide/en/observability/current/images/anomalies-overlay.png)
 
-**Osquery**
+## Osquery
 ![Infra](https://www.elastic.co/guide/en/observability/current/images/osquery-overlay.png)
