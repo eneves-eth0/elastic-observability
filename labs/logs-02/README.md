@@ -478,3 +478,100 @@ Você vai ter um resultado parecido com esse
   }
 }
 ```
+
+#### Roteamemto de logs para datastreams especificos
+Por padrão, um pipeline de ingestão envia seus dados de log para um único data stream. 
+
+Para simplificar o gerenciamento de dados de log, utilize um processador de redirecionamento para encaminhar dados do data stream genérico para um data stream específico.
+
+Por exemplo, você pode querer enviar logs de alta severidade para um data stream específico para auxiliar na categorização.
+
+Esta seção mostra como usar um processador de redirecionamento para enviar os logs de alta severidade (WARN ou ERROR) dos seguintes logs de exemplo para um data stream específico e manter os logs regulares (DEBUG e INFO) no data stream padrão.
+
+#### Adicionando o processador de reroute
+```
+PUT _ingest/pipeline/logs-example-default
+{
+  "description": "Extracts fields and reroutes WARN",
+  "processors": [
+    {
+      "dissect": {
+        "field": "message",
+        "pattern": "%{@timestamp} %{log.level} %{host.ip} %{message}"
+      },
+      "reroute": {
+        "tag": "high_severity_logs",
+        "if" : "ctx.log?.level == 'WARN' || ctx.log?.level == 'ERROR'",
+        "dataset": "critical"
+      }
+    }
+  ]
+}
+```
+
+- **tag** – Identificador para o processador que você pode usar para depuração e métricas. No exemplo, a tag está definida como high_severity_logs.
+- **if** – Executa o processador condicionalmente. No exemplo, "ctx.log?.level == 'WARN' || ctx.log?.level == 'ERROR'", significa que o processador é executado quando o campo log.level é WARN ou ERROR.
+- **dataset** – o conjunto de dados do fluxo de dados para onde seu documento será encaminhado se a condição anterior for verdadeira. No exemplo, logs com um log.level de WARN ou ERROR são encaminhados para o fluxo de dados logs-critical-default.
+
+#### Adicione logs ao data stream
+```
+POST logs-example-default/_bulk
+{ "create": {} }
+{ "message": "2023-08-08T13:45:12.123Z WARN 192.168.1.101 Disk usage exceeds 90%." }
+{ "create": {} }
+{ "message": "2023-08-08T13:45:14.003Z ERROR 192.168.1.103 Database connection failed." }
+{ "create": {} }
+{ "message": "2023-08-08T13:45:15.004Z DEBUG 192.168.1.104 Debugging connection issue." }
+{ "create": {} }
+{ "message": "2023-08-08T13:45:16.005Z INFO 192.168.1.102 User changed profile picture." }
+```
+
+#### Verifique se o processador funcionou
+```
+GET logs-critical-default/_search
+```
+Essa deve ser a saida
+
+```
+{
+  ...
+  "hits": {
+    ...
+    "hits": [
+        ...
+        "_source": {
+          "host": {
+            "ip": "192.168.1.101"
+          },
+          "@timestamp": "2023-08-08T13:45:12.123Z",
+          "message": "Disk usage exceeds 90%.",
+          "log": {
+            "level": "WARN"
+          },
+          "data_stream": {
+            "namespace": "default",
+            "type": "logs",
+            "dataset": "critical"
+          },
+          {
+        ...
+        "_source": {
+          "host": {
+            "ip": "192.168.1.103"
+           },
+          "@timestamp": "2023-08-08T13:45:14.003Z",
+          "message": "Database connection failed.",
+          "log": {
+            "level": "ERROR"
+          },
+          "data_stream": {
+            "namespace": "default",
+            "type": "logs",
+            "dataset": "critical"
+          }
+        }
+      }
+    ]
+  }
+}
+```
