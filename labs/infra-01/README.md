@@ -76,3 +76,10 @@ Por exemplo, ao visualizar Kubernetes Pods na visão de alto nível, clique no P
 
 ![Infra](https://www.elastic.co/guide/en/observability/current/images/pod-metrics.png)
 
+### Adicionando metricsa customizadas
+
+Se as métricas predefinidas exibidas na página Inventory para cada recurso não forem suficientes para o seu caso de uso específico, você pode adicionar e definir métricas personalizadas.
+
+Selecione seu recurso e, a partir do menu Metric filter, clique em Add metric.
+
+![Infra](https://www.elastic.co/guide/en/observability/current/images/add-custom-metric.png)
