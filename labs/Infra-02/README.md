@@ -39,3 +39,9 @@ Agora há um gráfico separado para cada interface de rede.
 Nesta visualização, o máximo de host.network.egress.bytes é exibido, filtrado por host.name e system.network.name.
 
 ![Infra](https://www.elastic.co/guide/en/observability/current/images/metrics-time-series.png)
+
+A agregação derivative é usada para calcular a diferença entre cada bucket. Por padrão, o valor de units é automaticamente definido para 1s, juntamente com a agregação positive only.
+
+- Para calcular o tráfego de rede para todas as interfaces, no dropdown group by, selecione Terms e adicione o campo system.network.name.
+- Você também precisará adicionar a agregação Series Agg e a função Sum. No dropdown Aggregation, selecione Series Agg e, no dropdown Function, selecione Sum.
+- Se você desejar salvar esta visualização e adicioná-la a um dashboard personalizado mais tarde, clique em Save.
